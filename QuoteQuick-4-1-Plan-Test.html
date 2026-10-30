@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QuoteQuick — Service Estimates & Trades</title>
+<style>
+
+:root{font-family:system-ui,-apple-system,sans-serif;color:#e8f5ef;background:#0b1110;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#123328 0%,#0b1110 54%);min-height:100vh}main{max-width:760px;margin:auto;padding:20px 16px 45px}h1{color:#50e3a4;font-size:2.5rem;letter-spacing:-.04em;margin:6px 0 0}h2{margin-top:0;color:#f2fff9}h3{color:#b8f3d5}section{background:#17221e;border:1px solid #2c493c;border-radius:18px;padding:20px;margin:18px 0;box-shadow:0 12px 35px #0005}label{display:block;font-weight:650;margin:13px 0 6px;color:#d6e8df}input,select,textarea{width:100%;border:1px solid #3b5a4c;border-radius:10px;padding:12px;font:inherit;background:#101a16;color:#f4fff9;outline-offset:2px}input:focus,select:focus,textarea:focus{outline:2px solid #38c78d;border-color:#38c78d}input::placeholder,textarea::placeholder{color:#93a89d}button{background:#17a86e;border:1px solid #31cb90;border-radius:11px;color:#06170f;padding:13px 16px;font:inherit;font-weight:750;margin:9px 8px 0 0;cursor:pointer}button:focus-visible{outline:3px solid #b7f7d9;outline-offset:2px}.secondary{background:#213c30;color:#d4ffeb;border-color:#3b7659}.danger{background:#422725;color:#ffceca;border-color:#75433e}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.item{border:1px solid #355445;background:#111d17;border-radius:13px;padding:13px;margin-top:12px}.item-fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.muted{color:#afc5b9;font-size:.86rem;line-height:1.55}.tagline{color:#c0d7cb;margin:5px 0 20px}.total{font-size:2rem;font-weight:850;color:#55e6a8}.summary{display:flex;justify-content:space-between;gap:12px;margin:12px 0;align-items:baseline}.summary strong{text-align:right;overflow-wrap:anywhere}.divider{border-top:1px solid #355144;margin:16px 0}.print-heading{display:none}.trade-detail{white-space:pre-wrap;overflow-wrap:anywhere}.status{font-size:.85rem;color:#76e5ae}.hidden{display:none!important}#estimate{border-color:#377b58}#estimate>h2{color:#59e3a6}@media(max-width:500px){.row{grid-template-columns:1fr}.item-fields{grid-template-columns:1fr 1fr}.item-fields label:first-child{grid-column:1/-1}}@media print{:root{color-scheme:light}body{background:white!important;color:#111!important}main{max-width:none;padding:0}h1,.tagline,.no-print{display:none!important}section{background:white!important;color:#111!important;box-shadow:none;border:0;padding:0;margin:0}.print-heading{display:block!important;color:#111!important}.estimate{border:0!important}#estimate{font-size:12pt}#estimate>h2{color:#111!important}.total{color:#111!important}button{display:none}.muted{color:#444!important;font-size:10pt}.divider{border-color:#bbb!important}}
+
+.navtabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.navtabs button{margin:0;flex:1;min-width:110px}
+.navtabs button.active{background:#49df9d;color:#081b12}
+.saved-entry{border:1px solid #355445;border-radius:12px;padding:13px;margin:10px 0;background:#111d17}
+.saved-entry .actions{display:flex;gap:7px;flex-wrap:wrap}
+.saved-entry button{padding:9px 12px;margin:5px 0 0}
+#contract{border-color:#377b58}
+#contract h2{color:#59e3a6}
+#contract .agreement{white-space:pre-wrap;line-height:1.65;overflow-wrap:anywhere}
+.warning{border-left:3px solid #e5b76b;padding:9px 12px;background:#2a261b}
+@media print{
+ .navtabs,#savedSection,#contractControls{display:none!important}
+ body.print-estimate #contract{display:none!important}
+ body.print-contract #estimate{display:none!important}
+ body.print-contract #contract{display:block!important}
+ #contract{background:#fff!important;color:#111!important;border:0!important;box-shadow:none!important}
+ #contract h2,#contract h3{color:#111!important}
+ #contract .muted{color:#444!important}
+}
+@media print{body.print-invoice #estimate,body.print-invoice #contract{display:none!important}body.print-estimate #invoice,body.print-contract #invoice{display:none!important}#invoice{color:#111!important}#invoice h2{color:#111!important}}.brand-logo{max-width:120px;max-height:85px;object-fit:contain}.plan-note{border-left:3px solid #50e3a4;padding:10px;background:#10291f}
+/* QuoteQuick 4.1 plan gate; intentionally excluded from printing. */
+#qqPlanGate{position:fixed;inset:0;z-index:9999;background:#07120e;overflow-y:auto;padding:24px 14px;color:#effff5}
+#qqPlanGate .qq-wrap{max-width:740px;margin:12px auto 45px;text-align:center}
+#qqPlanGate h2{font-size:2.3rem;color:#50e3a4;margin:10px 0}
+#qqPlanGate .qq-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:24px 0;text-align:left}
+#qqPlanGate .qq-card{background:#14241c;border:1px solid #387c59;border-radius:18px;padding:20px}
+#qqPlanGate .qq-card h3{margin:0;color:#e9fff2;font-size:1.35rem}
+#qqPlanGate .qq-price{font-size:2rem;color:#50e3a4;font-weight:800;margin:12px 0}
+#qqPlanGate ul{padding-left:20px;line-height:1.8;color:#d0e8d9}
+#qqPlanGate button{width:100%;margin:8px 0 0}
+#qqPlanGate .qq-coming{border:1px solid #53765f;border-radius:10px;padding:12px;color:#d8e8dd;background:#23382b;font-weight:700;text-align:center}
+.qq-plan-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.qq-plan-nav button{margin:0}
+@media(max-width:540px){#qqPlanGate .qq-cards{grid-template-columns:1fr}#qqPlanGate h2{font-size:1.9rem}}
+@media print{#qqPlanGate,.qq-plan-nav{display:none!important}}
+</style></head><body><div id="qqPlanGate" class="no-print" role="dialog" aria-modal="true" aria-labelledby="qqPlanTitle" hidden>
+<div class="qq-wrap"><p style="color:#a7d9bb">WELCOME TO</p><h2 id="qqPlanTitle">QuoteQuick</h2>
+<p>Estimates, invoices, contracts, and trades for service businesses.</p>
+<h3 style="color:#effff5">Choose your plan</h3>
+<div class="qq-cards">
+<div class="qq-card"><h3>Free</h3><div class="qq-price">$0</div><ul><li>Up to 3 saved estimates on this device</li><li>Estimate and contract PDFs</li><li>Money, barter, and split payments</li><li>Invoice PDF preview</li></ul><button type="button" id="qqContinueFree">Continue with Free</button></div>
+<div class="qq-card"><h3>Pro <span style="font-size:.75rem;color:#b1dcc5">PLANNED</span></h3><div class="qq-price">$9.99 <span style="font-size:.9rem;color:#d0e8d9">/ month</span></div><ul><li>Unlimited saved estimates and customers</li><li>Expanded invoice tools</li><li>Business branding</li><li>Estimate and invoice history</li></ul><div class="qq-coming">Coming soon — not available for purchase</div><button type="button" class="secondary" id="qqProInfo">Notify me when Pro launches?</button></div>
+</div><p class="muted">Pro subscriptions are not active. No payment is collected. Your saved estimates remain in this browser.</p></div></div>
+<main><div class="qq-plan-nav no-print"><div><h1>QuoteQuick</h1><p class="tagline">Estimates and trades for service businesses.</p></div><button type="button" id="qqViewPlans" class="secondary">View plans / Upgrade to Pro</button></div>
+<section class="no-print"><h2>Business profile</h2><p class="muted">Stored in this browser only.</p><label for="profileEmail">Business email</label><input id="profileEmail" type="email"><label for="profilePhone">Business phone</label><input id="profilePhone"><label for="profileAddress">Business address</label><textarea id="profileAddress"></textarea><label for="profileLogo">Logo (PNG/JPG, under 300 KB)</label><input id="profileLogo" type="file" accept="image/png,image/jpeg"><img id="logoPreview" class="brand-logo hidden" alt="Logo"><button id="removeLogo" type="button" class="secondary">Remove logo</button><p id="profileStatus" class="status"></p></section><section class="no-print"><h2>Create an estimate</h2><div class="row"><div><label for="business">Your business name</label><input id="business" placeholder="Your business"></div><div><label for="customer">Customer name</label><input id="customer" placeholder="Customer name"></div></div>
+<div class="row"><div><label for="contact">Business contact (optional)</label><input id="contact" placeholder="Phone or email"></div><div><label for="category">Business type</label><select id="category"><option value="cleaning">Cleaning</option><option value="automotive">Automotive</option><option value="handyman">Handyman</option><option value="lawn">Lawn care</option><option value="plumbing">Plumbing</option><option value="painting">Painting</option><option value="other">Other / custom</option></select></div></div>
+<div class="row"><div><label for="estimateNumber">Estimate number</label><input id="estimateNumber" placeholder="QQ-001"></div><div><label for="validUntil">Valid until (optional)</label><input id="validUntil" type="date"></div></div>
+<h3>Services, labor, parts & materials</h3><p class="muted">Enter each item and its quantity and unit price. Use quantity 1 for a flat fee.</p><div id="items"></div><button class="secondary" id="addItem" type="button">+ Add line item</button>
+<div class="row"><div><label for="discount">Discount ($)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div><div><label for="tax">Sales tax rate (%)</label><input id="tax" type="number" min="0" max="100" step="0.01" value="0"></div></div><p class="muted">Tax is adjustable, not automatically verified. Different items and services may have different tax rules. Confirm applicable taxes before sending estimates.</p>
+<label for="payment">Payment arrangement</label><select id="payment"><option value="cash">Money / standard payment</option><option value="barter">Barter / trade</option><option value="split">Part money + part trade</option></select>
+<div id="tradeFields" class="hidden"><label for="tradeDescription">What will be traded?</label><textarea id="tradeDescription" rows="3" placeholder="Describe the goods or services offered, condition, delivery, and agreed terms"></textarea><div class="row"><div><label for="tradeValue">Agreed trade credit ($)</label><input id="tradeValue" type="number" min="0" step="0.01" value="0"></div><div><label for="tradeDue">Trade completion date (optional)</label><input id="tradeDue" type="date"></div></div><p class="muted">A proposed trade is not a completed agreement. Both parties should confirm terms. Barter may have income and sales tax consequences.</p></div>
+<label for="notes">Estimate notes / scope / exclusions</label><textarea id="notes" rows="3" placeholder="Describe the work, terms, and exclusions"></textarea>
+<button id="update" type="button">Update estimate</button><button class="secondary" id="save" type="button">Save on this phone</button><button class="secondary" id="print" type="button">Print / Save PDF</button><p id="status" class="status" role="status"></p></section>
+<section id="estimate" class="estimate" aria-live="polite"></section>
+
+<section class="no-print" id="savedSection">
+ <h2>Saved estimates</h2><p class="plan-note">Free preview: up to 3 saved estimates. Pro unlimited saving is planned, not available for purchase. Existing records will not be deleted.</p>
+ <p class="muted">Save multiple estimates in this browser, then reopen, edit or delete them. They are NOT synced or backed up online. Clearing browser data can erase them.</p>
+ <button id="newEstimate" class="secondary" type="button">+ New estimate / customer</button>
+ <button id="saveRecord" type="button">Save this estimate to list</button>
+ <button id="exportRecords" class="secondary" type="button">Download backup (.json)</button>
+ <label for="importRecords">Restore estimates from backup (.json)</label>
+ <input id="importRecords" type="file" accept=".json,application/json">
+ <p id="savedStatus" class="status" role="status"></p>
+ <div id="savedList"></div>
+</section>
+<section class="no-print" id="contractControls">
+ <h2>Service agreement / contract</h2>
+ <p class="muted">Create a printable draft from the estimate. Both parties should review and agree to the terms. This is a general template, not legal advice or an electronic-signature service.</p>
+ <label for="contractTemplate">Agreement type</label>
+ <select id="contractTemplate"><option value="general">General service agreement</option><option value="cleaning">Cleaning service agreement</option><option value="custom">Custom service agreement</option></select>
+ <label for="startDate">Planned start date (optional)</label><input id="startDate" type="date">
+ <label for="endDate">Planned completion date (optional)</label><input id="endDate" type="date">
+ <label for="contractTerms">Additional contract terms (optional)</label>
+ <textarea id="contractTerms" rows="4" placeholder="Payment schedule, cancellation policy, warranty limitations, responsibilities, materials, dispute process..."></textarea>
+ <button id="makeContract" type="button">Update contract</button>
+ <button id="printContract" class="secondary" type="button">Print / Save contract PDF</button>
+</section>
+<section id="contract" class="estimate" aria-live="polite"></section><section class="no-print"><h2>Invoice — Pro preview</h2><p class="muted">Test invoice PDFs for free. No subscriptions, payment collection, or email sending yet.</p><label for="invoiceNumber">Invoice number</label><input id="invoiceNumber" placeholder="INV-001"><label for="invoiceDue">Due date</label><input id="invoiceDue" type="date"><label for="invoiceTerms">Payment terms</label><textarea id="invoiceTerms"></textarea><button id="updateInvoice" type="button">Update invoice</button><button id="printInvoice" type="button" class="secondary">Print / Save invoice PDF</button></section><section id="invoice" class="estimate"></section>
+<p class="muted no-print">Prototype: estimates are saved only in this browser when you select Save. No customer accounts, payment processing, marketplace, or legally binding e-signatures are included. Verify tax rules and trade terms before use.</p></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n),nonneg=v=>Math.max(0,Number(v)||0);
+const fields=['business','customer','contact','category','estimateNumber','validUntil','discount','tax','payment','tradeDescription','tradeValue','tradeDue','notes'];
+const categories={cleaning:'Cleaning',automotive:'Automotive',handyman:'Handyman',lawn:'Lawn care',plumbing:'Plumbing',painting:'Painting',other:'Custom service'};
+const examples={cleaning:'Standard cleaning',automotive:'Vehicle service / repair',handyman:'Handyman labor',lawn:'Lawn care service',plumbing:'Plumbing service',painting:'Painting service',other:'Service description'};
+function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
+function addItem(data={}){const box=el('div',undefined,'item');const fieldsBox=el('div',undefined,'item-fields');function input(labelText,type,value,placeholder){const wrap=el('div'),label=el('label',labelText),inp=el('input');inp.type=type;inp.value=value;inp.placeholder=placeholder||'';if(type==='number'){inp.min='0';inp.step='0.01'}wrap.append(label,inp);fieldsBox.append(wrap);return inp}const desc=input('Description','text',data.description??examples[$('category').value],'Labor, parts, materials');const qty=input('Quantity / hours','number',data.quantity??3);const price=input('Unit price ($)','number',data.price??45);const remove=el('button','Remove item','danger');remove.type='button';remove.addEventListener('click',()=>{if($('items').children.length>1){box.remove();calculate()}});box.append(fieldsBox,remove);$('items').append(box);[desc,qty,price].forEach(i=>i.addEventListener('input',calculate));calculate()}
+function getItems(){return [...$('items').children].map(box=>{const i=box.querySelectorAll('input');return {description:i[0].value,quantity:nonneg(i[1].value),price:nonneg(i[2].value)}})}
+function row(parent,label,value,cls){const r=el('div',undefined,'summary');r.append(el('span',label),el('strong',value,cls));parent.append(r)}
+function calculate(){const q=$('estimate');q.replaceChildren();const name=$('business').value.trim()||'Your Business',customer=$('customer').value.trim()||'Customer',items=getItems(),subtotalRaw=items.reduce((sum,i)=>sum+i.quantity*i.price,0),discount=Math.min(subtotalRaw,nonneg($('discount').value)),subtotal=subtotalRaw-discount,taxRate=Math.min(100,nonneg($('tax').value)),tax=subtotal*taxRate/100,total=subtotal+tax,payment=$('payment').value,credit=Math.min(total,nonneg($('tradeValue').value));$('tradeFields').classList.toggle('hidden',payment==='cash');q.append(el('h2',name,'print-heading'));if(!$('contact').value.trim()){}else q.append(el('p',$('contact').value.trim()));q.append(el('h2','Estimate'));row(q,'Estimate #',$('estimateNumber').value.trim()||'—');row(q,'Date',new Date().toLocaleDateString());if($('validUntil').value)row(q,'Valid until',$('validUntil').value);row(q,'Customer',customer);row(q,'Business type',categories[$('category').value]);q.append(el('div',undefined,'divider'));items.forEach(i=>row(q,i.description||'Service / item',`${i.quantity} × ${money(i.price)} = ${money(i.quantity*i.price)}`));q.append(el('div',undefined,'divider'));row(q,'Items total',money(subtotalRaw));row(q,'Discount',`−${money(discount)}`);row(q,'Subtotal',money(subtotal));row(q,`Estimated sales tax (${taxRate}%)`,money(tax));row(q,'Estimate total',money(total),'total');q.append(el('div',undefined,'divider'));row(q,'Payment arrangement',payment==='cash'?'Money':payment==='barter'?'Barter / trade':'Money + trade');if(payment!=='cash'){if($('tradeDescription').value.trim())q.append(el('p','Proposed trade: '+$('tradeDescription').value.trim(),'trade-detail'));row(q,'Agreed trade credit',money(credit));row(q,'Remaining money balance',money(total-credit));if($('tradeDue').value)row(q,'Trade due',$('tradeDue').value);q.append(el('p','Trade requires mutual acceptance. The credit shown does not remove applicable taxes.','muted'))}if($('notes').value.trim())q.append(el('p','Notes: '+$('notes').value.trim(),'trade-detail'));q.append(el('p','Estimate only. Final scope, payment, and trade terms require agreement.','muted'))}
+function save(){try{localStorage.setItem('quotequickV2Draft',JSON.stringify({fields:Object.fromEntries(fields.map(id=>[id,$(id).value])),items:getItems()}));$('status').textContent='Draft saved in this browser on this device.'}catch(e){$('status').textContent='Could not save. Browser storage may be disabled.'}}
+$('addItem').addEventListener('click',()=>addItem({description:'',quantity:1,price:0}));$('update').addEventListener('click',calculate);$('save').addEventListener('click',save);$('print').addEventListener('click',()=>{calculate();renderContract();document.body.classList.remove('print-contract');document.body.classList.add('print-estimate');refreshAll();window.print()});fields.forEach(id=>$(id).addEventListener('input',calculate));
+try{const saved=JSON.parse(localStorage.getItem('quotequickV2Draft')||'null');if(saved&&saved.fields){fields.forEach(id=>{if(saved.fields[id]!==undefined)$(id).value=saved.fields[id]});if(Array.isArray(saved.items)&&saved.items.length)saved.items.forEach(addItem);else addItem()}else addItem()}catch(e){addItem()}calculate();
+
+const RECORDS_KEY='quotequickSavedEstimatesV1';
+const contractFields=['contractTemplate','startDate','endDate','contractTerms','invoiceNumber','invoiceDue','invoiceTerms'];
+let loadedRecordId=null;
+function snapshot(){
+ return {fields:Object.fromEntries(fields.map(id=>[id,$(id).value])),
+ items:getItems(),contract:Object.fromEntries(contractFields.map(id=>[id,$(id).value]))};
+}
+function getRecords(){
+ try{const v=JSON.parse(localStorage.getItem(RECORDS_KEY)||'[]');return Array.isArray(v)?v:[]}
+ catch(e){return []}
+}
+function storeRecords(records){localStorage.setItem(RECORDS_KEY,JSON.stringify(records))}
+function setSavedStatus(message){$('savedStatus').textContent=message}
+function newEstimate(){
+ if(!confirm('Start a new estimate? Your current changes will be cleared. Save them first if needed.'))return;
+ loadedRecordId=null;
+ const keepBusiness=$('business').value,keepContact=$('contact').value,keepCategory=$('category').value;
+ fields.forEach(id=>$(id).value='');
+ $('business').value=keepBusiness;
+ $('contact').value=keepContact;
+ $('category').value=keepCategory;
+ $('discount').value='0';$('tax').value='0';$('tradeValue').value='0';$('payment').value='cash';
+ contractFields.forEach(id=>$(id).value='');
+ $('contractTemplate').value='general';
+ $('items').replaceChildren();
+ addItem({description:'',quantity:1,price:0});
+ calculate();renderContract();
+ setSavedStatus('New estimate ready. Enter a different customer and tap Save this estimate to list.');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function saveRecord(){
+ try{
+  const data=snapshot(),records=getRecords(),id=loadedRecordId||('qq-'+Date.now()+'-'+Math.random().toString(36).slice(2,8));
+  const entry={id,updated:new Date().toISOString(),data};
+  if(!records.some(r=>r.id===id)&&records.length>=3){setSavedStatus('Free preview limit: 3 saved estimates. Existing records are safe. Download a backup before deleting anything.');return}const at=records.findIndex(x=>x.id===id);
+  if(at<0)records.unshift(entry);else records[at]=entry;
+  storeRecords(records);loadedRecordId=id;renderRecords();
+  setSavedStatus('Estimate saved in this browser. Download a backup for safekeeping.');
+ }catch(e){setSavedStatus('Could not save. Browser storage may be full or unavailable.')}
+}
+function loadSnapshot(data){
+ if(!data||!data.fields||!Array.isArray(data.items))throw Error('Invalid estimate');
+ fields.forEach(id=>{if(data.fields[id]!==undefined)$(id).value=data.fields[id]});
+ contractFields.forEach(id=>{if(data.contract&&data.contract[id]!==undefined)$(id).value=data.contract[id]});
+ $('items').replaceChildren();
+ if(data.items.length){data.items.forEach(addItem)}else addItem();
+ calculate();renderContract();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderRecords(){
+ const root=$('savedList');root.replaceChildren();
+ const records=getRecords().sort((a,b)=>String(b.updated).localeCompare(String(a.updated)));
+ if(!records.length){root.append(el('p','No saved estimates yet.','muted'));return}
+ records.forEach(entry=>{
+  const data=entry.data||{},f=data.fields||{},items=Array.isArray(data.items)?data.items:[],
+  gross=items.reduce((s,i)=>s+nonneg(i.quantity)*nonneg(i.price),0),
+  subtotal=Math.max(0,gross-nonneg(f.discount)),
+  total=subtotal*(1+Math.min(100,nonneg(f.tax))/100);
+  const box=el('div',undefined,'saved-entry');
+  box.append(el('strong',(f.customer||'Customer')+' — '+(f.estimateNumber||'No number')));
+  box.append(el('p',(f.business||'Your Business')+' • '+money(total)+' • '+new Date(entry.updated).toLocaleDateString(),'muted'));
+  const actions=el('div',undefined,'actions');
+  const open=el('button','Open / edit','secondary');open.type='button';
+  open.addEventListener('click',()=>{try{loadSnapshot(data);loadedRecordId=entry.id;setSavedStatus('Estimate opened. Changes are not saved until you save again.')}catch(e){setSavedStatus('Unable to open this record.')}});
+  const del=el('button','Delete','danger');del.type='button';
+  del.addEventListener('click',()=>{if(confirm('Delete this saved estimate? This cannot be undone.')){try{storeRecords(getRecords().filter(x=>x.id!==entry.id));if(loadedRecordId===entry.id)loadedRecordId=null;renderRecords();setSavedStatus('Estimate deleted.')}catch(e){setSavedStatus('Unable to delete.')}}});
+  actions.append(open,del);box.append(actions);root.append(box);
+ });
+}
+function exportRecords(){
+ const records=getRecords();
+ if(!records.length){setSavedStatus('Save an estimate first.');return}
+ const data=JSON.stringify({app:'QuoteQuick',version:1,records},null,2);
+ const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+ const a=document.createElement('a');a.href=url;a.download='QuoteQuick-estimates-backup.json';document.body.append(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+ setSavedStatus('Backup download requested. Keep this file private; it contains customer information.');
+}
+async function importRecords(event){
+ const file=event.target.files[0];if(!file)return;
+ try{
+  const parsed=JSON.parse(await file.text());
+  if(parsed.app!=='QuoteQuick'||!Array.isArray(parsed.records)||parsed.records.length>1000||!parsed.records.every(r=>r&&typeof r.id==='string'&&r.data&&r.data.fields&&Array.isArray(r.data.items)))throw Error('Invalid backup');
+  if(!confirm('Restore '+parsed.records.length+' saved estimates? Existing records with the same IDs will be replaced.'))return;
+  const map=new Map(getRecords().map(r=>[r.id,r]));
+  parsed.records.forEach(r=>map.set(r.id,r));
+  storeRecords([...map.values()]);renderRecords();setSavedStatus('Backup restored in this browser.');
+ }catch(e){setSavedStatus('This file is not a valid QuoteQuick backup or could not be stored.')}
+ finally{event.target.value=''}
+}
+function renderContract(){
+ const q=$('contract');q.replaceChildren();
+ const name=$('business').value.trim()||'[Business name]',customer=$('customer').value.trim()||'[Customer name]';
+ const items=getItems(),raw=items.reduce((s,i)=>s+i.quantity*i.price,0),
+ discount=Math.min(raw,nonneg($('discount').value)),subtotal=raw-discount,
+ taxRate=Math.min(100,nonneg($('tax').value)),tax=subtotal*taxRate/100,total=subtotal+tax;
+ const payment=$('payment').value,credit=payment==='cash'?0:Math.min(total,nonneg($('tradeValue').value));
+ q.append(el('h2','Service Agreement — Draft'));
+ q.append(el('p','Prepared '+new Date().toLocaleDateString()+' • Estimate '+($('estimateNumber').value.trim()||'not numbered')));
+ row(q,'Service provider',name);if($('contact').value.trim())row(q,'Provider contact',$('contact').value.trim());
+ row(q,'Customer',customer);row(q,'Service category',categories[$('category').value]||'Other');
+ if($('startDate').value)row(q,'Planned start',$('startDate').value);
+ if($('endDate').value)row(q,'Planned completion',$('endDate').value);
+ q.append(el('h3','1. Work and materials'));
+ const prefix=$('contractTemplate').value==='cleaning'?'Cleaning services: ':$('contractTemplate').value==='custom'?'Custom services: ':'Services: ';
+ q.append(el('p',prefix+'The provider proposes the following work and items:'));
+ items.forEach(i=>row(q,i.description||'Service / item',`${i.quantity} × ${money(i.price)} = ${money(i.quantity*i.price)}`));
+ if($('notes').value.trim())q.append(el('p','Scope, notes and exclusions: '+$('notes').value.trim(),'trade-detail'));
+ q.append(el('h3','2. Price and payment'));
+ row(q,'Subtotal after discount',money(subtotal));row(q,`Estimated sales tax (${taxRate}%)`,money(tax));row(q,'Estimated total',money(total),'total');
+ row(q,'Payment arrangement',payment==='cash'?'Money':payment==='barter'?'Barter / trade':'Part money + part trade');
+ if(payment!=='cash'){
+  q.append(el('p','Proposed exchange: '+($('tradeDescription').value.trim()||'[Describe trade goods/services, condition and delivery]'),'trade-detail'));
+  row(q,'Proposed trade credit',money(credit));row(q,'Remaining money balance',money(total-credit));
+  if($('tradeDue').value)row(q,'Trade completion target',$('tradeDue').value);
+ }
+ q.append(el('p','Payment timing, methods, and any deposit must be agreed by both parties before work begins.'));
+ q.append(el('h3','3. Changes and acceptance'));
+ q.append(el('p','Changes to scope, price, schedule, or trade terms should be documented and accepted by both parties. This draft is not an accepted agreement until both parties agree to its terms.'));
+ if($('contractTerms').value.trim()){q.append(el('h3','4. Additional terms'));q.append(el('p',$('contractTerms').value.trim(),'trade-detail'))}
+ q.append(el('div',undefined,'divider'));
+ q.append(el('p','Provider signature: _________________________   Date: __________'));
+ q.append(el('p','Customer signature: _________________________   Date: __________'));
+ q.append(el('p','Template only — not legal advice. Check local contract, licensing, tax, and consumer-protection requirements. Signatures are blank lines for printing; no electronic signing is provided.','muted'));
+}
+$('newEstimate').addEventListener('click',newEstimate);
+$('saveRecord').addEventListener('click',saveRecord);
+$('exportRecords').addEventListener('click',exportRecords);
+$('importRecords').addEventListener('change',importRecords);
+$('makeContract').addEventListener('click',renderContract);
+$('printContract').addEventListener('click',()=>{calculate();renderContract();document.body.classList.remove('print-estimate');document.body.classList.add('print-contract');refreshAll();window.print()});
+
+window.addEventListener('afterprint',()=>document.body.classList.remove('print-estimate','print-contract'));
+contractFields.forEach(id=>$(id).addEventListener('input',renderContract));
+fields.forEach(id=>$(id).addEventListener('input',renderContract));
+$('items').addEventListener('input',renderContract);
+$('items').addEventListener('click',()=>setTimeout(renderContract,0));
+renderRecords();renderContract();
+
+let logoData='';
+const PROFILE_KEY='quotequickBusinessProfileV1';
+try{const p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(p){$('profileEmail').value=p.email||'';$('profilePhone').value=p.phone||'';$('profileAddress').value=p.address||'';logoData=p.logo||''}}catch(e){}
+function showLogo(){$('logoPreview').classList.toggle('hidden',!logoData);if(logoData)$('logoPreview').src=logoData}
+function profileSave(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify({email:$('profileEmail').value,phone:$('profilePhone').value,address:$('profileAddress').value,logo:logoData}));$('profileStatus').textContent='Profile saved in this browser.'}catch(e){$('profileStatus').textContent='Storage full. Try a smaller logo.'}}
+['profileEmail','profilePhone','profileAddress'].forEach(id=>$(id).addEventListener('change',()=>{profileSave();refreshAll()}));
+$('profileLogo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!['image/png','image/jpeg'].includes(f.type)||f.size>300000){$('profileStatus').textContent='Use a PNG/JPG under 300 KB.';return}const r=new FileReader();r.onload=()=>{logoData=String(r.result);showLogo();profileSave();refreshAll()};r.readAsDataURL(f)});
+$('removeLogo').addEventListener('click',()=>{logoData='';showLogo();profileSave();refreshAll()});
+function brand(q){if(logoData){const img=el('img');img.className='brand-logo';img.src=logoData;img.alt='Business logo';q.prepend(img)}const p=[$('profilePhone').value,$('profileEmail').value,$('profileAddress').value].filter(Boolean).join(' • ');if(p)q.append(el('p',p,'muted'))}
+function renderInvoice(){
+ const q=$('invoice');q.replaceChildren();q.append(el('h2','Invoice — Preview'));q.append(el('h3',$('business').value.trim()||'Your Business'));brand(q);
+ row(q,'Invoice #',$('invoiceNumber').value||'—');row(q,'Date',new Date().toLocaleDateString());if($('invoiceDue').value)row(q,'Due',$('invoiceDue').value);row(q,'Customer',$('customer').value||'Customer');
+ const items=getItems(),raw=items.reduce((v,i)=>v+i.quantity*i.price,0),discount=Math.min(raw,nonneg($('discount').value)),subtotal=raw-discount,tax=subtotal*Math.min(100,nonneg($('tax').value))/100,total=subtotal+tax,payment=$('payment').value,credit=payment==='cash'?0:Math.min(total,nonneg($('tradeValue').value));
+ q.append(el('div',undefined,'divider'));items.forEach(i=>row(q,i.description||'Service',`${i.quantity} × ${money(i.price)} = ${money(i.quantity*i.price)}`));
+ row(q,'Discount','−'+money(discount));row(q,'Estimated tax',money(tax));row(q,'Total',money(total),'total');
+ row(q,'Payment',payment==='cash'?'Money':payment==='barter'?'Trade':'Money + trade');
+ if(payment!=='cash'){q.append(el('p','Trade: '+($('tradeDescription').value||'Not specified'),'trade-detail'));row(q,'Trade credit',money(credit));row(q,'Remaining money',money(total-credit),'total');if($('tradeDue').value)row(q,'Trade due',$('tradeDue').value)}
+ if($('invoiceTerms').value)q.append(el('p','Terms: '+$('invoiceTerms').value,'trade-detail'));
+ q.append(el('p','Preview only. Verify tax, payment and trade terms. No payment is collected.','muted'));
+}
+function refreshAll(){calculate();brand($('estimate'));renderContract();brand($('contract'));renderInvoice()}
+$('updateInvoice').addEventListener('click',renderInvoice);
+$('printInvoice').addEventListener('click',()=>{refreshAll();document.body.classList.remove('print-estimate','print-contract');document.body.classList.add('print-invoice');window.print()});
+window.addEventListener('afterprint',()=>document.body.classList.remove('print-invoice'));
+fields.concat(contractFields).forEach(id=>$(id).addEventListener('input',renderInvoice));
+$('items').addEventListener('input',renderInvoice);
+showLogo();refreshAll();
+
+// Separate plan UI state; existing estimates, drafts, and profile storage are unchanged.
+(function(){
+ const gate=document.getElementById('qqPlanGate');
+ const key='quotequickPlanChoiceV41';
+ function show(){gate.hidden=false;document.body.style.overflow='hidden';document.getElementById('qqContinueFree').focus()}
+ function hide(){gate.hidden=true;document.body.style.overflow='';document.getElementById('qqViewPlans').focus()}
+ document.getElementById('qqContinueFree').addEventListener('click',function(){try{localStorage.setItem(key,'free')}catch(e){}hide()});
+ document.getElementById('qqViewPlans').addEventListener('click',show);
+ document.getElementById('qqProInfo').addEventListener('click',function(){alert('QuoteQuick Pro is planned for $9.99/month, but is not available to buy yet. You can continue using Free and return here with View plans / Upgrade to Pro.')});
+ let chosen=false;try{chosen=localStorage.getItem(key)==='free'}catch(e){}
+ if(!chosen)show();
+})();
+</script></body></html>
